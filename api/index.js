@@ -29,3 +29,16 @@ app.listen(3000, () => {
 app.use('/api/user', userRouter);
 //auth route
 app.use('/api/auth', authRouter);
+
+//Creating middleware for handling try catch, app.use is going to take 4 things, one is the error (error is the error that we will be getting as an input to this middleware), req (data from the client or the browser), res (response from the server to the client), next (go to the next middleware)
+app.use((err, req, res, next) => {
+    //basically saying that display error status codes, if there is an error without code, then display the code as 500, internal server error
+    const statusCode = err.statusCode || 500;
+    //We create another constant for error message, here also we either display the error message, if there is any error without error message then we display Internal server error
+    const message = err.message || 'Internal Server Error';
+    return res.status(statusCode).json({
+        success: false,
+        statusCode,
+        message
+    });
+})
