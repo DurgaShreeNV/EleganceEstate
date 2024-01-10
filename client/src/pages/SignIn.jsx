@@ -1,12 +1,19 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+//import useDispath
+import { useDispatch, useSelector } from 'react-redux';
+//importing all the functions that we have created
+import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  //initiate the Navigate
+  // const [error, setError] = useState(null);
+  // const [loading, setLoading] = useState(false);
+  // Instead of the above two lines we can have: This is coming from global state (inside userSlice, the state name was user), to use this we have to import useSelector from react redux
+const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  //initialize dispatch
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -17,7 +24,9 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      // setLoading(true);
+      // instead of having setLoading(true), we can just dispatch the signInStart.  
+      dispatch(signInStart());
       const res = await fetch('/api/auth/signin',
         {
           method: 'POST',
@@ -29,17 +38,23 @@ export default function SignIn() {
       );
       const data = await res.json();
       if (data.success === false) {
-        setError(data.message);
-        setLoading(false);
+        // setLoading(false);
+        // setError(null);
+        // Similarly for setLoading(false). setError, we don't want both of them, lets dispatch signInFailure.  
+        dispatch(signInFailure(data.message));
         return;
       }
-      setLoading(false);
-      setError(null);
+      // setError(data.message);
+      // setLoading(false);
+      // Once the sign in is done properly we can dispatch sign in success instead of the above two lines 
+      dispatch(signInSuccess(data));
       navigate('/');
     }
     catch (error) {
-      setLoading(false);
-      setError(error.message);
+      // setLoading(false);
+      // setError(error.message);
+      // Similarly here also 
+      dispatch(signInFailure(error.message));
     }
 
   };
