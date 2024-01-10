@@ -1,21 +1,39 @@
 import User from '../models/user.models.js';
 import bcryptjs from 'bcryptjs';
+import { errorHandler } from '../utils/error.js';
+import jwt from 'jsonwebtoken';
 
 export const signup = async (req, res, next) => {
-    //we are getting the data from the browser, that is from the body
-    // console.log(req.body)
     const { username, email, password } = req.body;
-    //hashing: hashSync ensure that it implements await internally, also we pass something called salt number to this function and then while passing the data to the newUser, we shall pass this hashedPassword
     const hashedPassword = bcryptjs.hashSync(password, 10);
-    //User is the model that we had created in the models folder and also import it in this folder 
     const newUser = new User({ username, email, password: hashedPassword });
     try {
-        //The following line saves it in the database, but this line takes time on the basis of various parameters such as internet speed, etc so lets use await, to use await here, we have to change this function from synchronous to asynchronous function
         await newUser.save();
-        //once it is saved, lets create a response of 201 indicating that something is created and then lets give a user message indicating that the user is created.
         res.status(201).json('User created successfully!');
     }
     catch (error) {
         next(error);
     }
 };
+//Sign in 
+export const signin = async (req, res, next) => {
+    const { email, password } = req.body;
+    try {
+        const validUser = await User.findOne({ email });
+        if (!validUser) return next(errorHandler(404, 'Wrong credentials!'));
+        const validPassword = bcryptjs.compareSync(password, validUser.password);
+        if (!validPassword) return next(errorHandler(401, 'Wrong credentials!'));
+        const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+        //Here we are destructuring the password, basically separte password from the rest of the information. We cannot use password, instead we use pass, because we have already used password in the above lines, and then we send the rest in the json
+        //Note: if we just make it equal to validUser, we will be able to see the password even then, so make it equal to validUser._doc
+        const { password: pass, ...rest } = validUser._doc;
+        res
+            .cookie('access_token', token, { httpOnly: true })
+            .status(200)
+            //we send the rest in the json
+            .json(rest);
+    }
+    catch (error) {
+        next(error);
+    }
+}
