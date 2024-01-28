@@ -1,18 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-//import useDispath
 import { useDispatch, useSelector } from 'react-redux';
-//importing all the functions that we have created
 import { signInStart, signInSuccess, signInFailure } from '../redux/user/userSlice';
+// Import OAuth 
+import OAuth from '../components/OAuth';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  // const [error, setError] = useState(null);
-  // const [loading, setLoading] = useState(false);
-  // Instead of the above two lines we can have: This is coming from global state (inside userSlice, the state name was user), to use this we have to import useSelector from react redux
 const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
-  //initialize dispatch
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
@@ -24,8 +20,6 @@ const { loading, error } = useSelector((state) => state.user);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // setLoading(true);
-      // instead of having setLoading(true), we can just dispatch the signInStart.  
       dispatch(signInStart());
       const res = await fetch('/api/auth/signin',
         {
@@ -37,23 +31,14 @@ const { loading, error } = useSelector((state) => state.user);
         }
       );
       const data = await res.json();
-      if (data.success === false) {
-        // setLoading(false);
-        // setError(null);
-        // Similarly for setLoading(false). setError, we don't want both of them, lets dispatch signInFailure.  
+      if (data.success === false) { 
         dispatch(signInFailure(data.message));
         return;
       }
-      // setError(data.message);
-      // setLoading(false);
-      // Once the sign in is done properly we can dispatch sign in success instead of the above two lines 
       dispatch(signInSuccess(data));
       navigate('/');
     }
     catch (error) {
-      // setLoading(false);
-      // setError(error.message);
-      // Similarly here also 
       dispatch(signInFailure(error.message));
     }
 
@@ -68,10 +53,12 @@ const { loading, error } = useSelector((state) => state.user);
         <button disabled={loading} className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'>
           {loading ? 'Loading...' : 'Sign In'}
         </button>
+        {/* Use OAuth  */}
+        <OAuth/>
       </form>
       <div className="flex gap-2 mt-5">
         <p>Dont have an account?</p>
-        <Link to={"/sign-up"}>
+        <Link to={'/sign-up'}>
           <span className='text-blue-700'>Sign up</span>
         </Link>
       </div>

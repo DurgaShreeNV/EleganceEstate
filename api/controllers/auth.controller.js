@@ -14,8 +14,7 @@ export const signup = async (req, res, next) => {
     catch (error) {
         next(error);
     }
-};
-//Sign in 
+}; 
 export const signin = async (req, res, next) => {
     const { email, password } = req.body;
     try {
@@ -24,16 +23,41 @@ export const signin = async (req, res, next) => {
         const validPassword = bcryptjs.compareSync(password, validUser.password);
         if (!validPassword) return next(errorHandler(401, 'Wrong credentials!'));
         const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
-        //Here we are destructuring the password, basically separte password from the rest of the information. We cannot use password, instead we use pass, because we have already used password in the above lines, and then we send the rest in the json
-        //Note: if we just make it equal to validUser, we will be able to see the password even then, so make it equal to validUser._doc
         const { password: pass, ...rest } = validUser._doc;
         res
             .cookie('access_token', token, { httpOnly: true })
             .status(200)
-            //we send the rest in the json
             .json(rest);
     }
     catch (error) {
         next(error);
+    }
+};
+
+export const google = async(req, res, next) => {
+    //Here we check if the user is already present
+    try{
+      const user = await User.findOne({email: req.body.email})
+      if(user) {
+        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET);
+        const { password: pass, ...rest} = user._doc;
+        res 
+            .cookie('access_token', token, { httpOnly: true })
+            .status(200)
+            .json(rest);
+      }
+      else {
+        //if the user is not present then we have to proceed with the creation of user, we generate a 16 digit password, firstly we use a random number: 0.12345678 and then we extract only the last 8 digits, later we do the same thing to get another 8 digits and then we finally get a 16 digit password. 
+        const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+        const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
+        const newUser = new User({username: req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-4), email: req.body.email, password: hashedPassword, avatar: req.body.photo});
+        await newUser.save();
+        const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET);
+        //Separate the password from the rest 
+        const { password: pass, ...rest } = newUser._doc;
+        res.cookie('access_token', token, { httpsOnly: true }).status(200).json(rest);
+      }
+    } catch (error) {
+        next(error)
     }
 }
