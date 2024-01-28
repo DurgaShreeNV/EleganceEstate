@@ -1,9 +1,12 @@
 import express from 'express';
-import { test } from '../controllers/user.controller.js';
+import { test, updateUser } from '../controllers/user.controller.js';
+import { verifyToken } from '../utils/verifyUser.js';
 
 const router = express.Router();
 
-//The reason we use get here is that we only want to get information, we don't want to send anything, if we want to send to database then we have to use put, post
 router.get('/test', test);
+//We have to use verify token here and to use it we have to import it first 
+//Once verified we have to send it to next function that is updateUser 
+router.post('/update/:id', verifyToken, updateUser);
 
 export default router;
