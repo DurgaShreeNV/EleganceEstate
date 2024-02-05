@@ -5,7 +5,14 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        custom: ['Cormorant Garamond', 'serif'],
+      },
+    },
   },
-  plugins: [],
-}
+  plugins: [
+    require('@tailwindcss/line-clamp'),
+    // ...
+  ],
+};
