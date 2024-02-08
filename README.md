@@ -1,6 +1,6 @@
 # Elegance Estate: MERN Stack Real Estate Application with React and Advanced Authentication
 
-![image](client/assets/readmepic.png)
+![image](client/src/assets/readmepic.png)
 
 Elegance Estate is a full-stack real estate web application developed using the MERN stack, aimed at providing a seamless user experience for property listings management and discovery. With advanced authentication mechanisms, intuitive features, and enhanced search functionality, Elegance Estate ensures secure user access and efficient property exploration.
 
