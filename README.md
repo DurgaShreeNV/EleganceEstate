@@ -20,16 +20,16 @@ Crafted a MERN-based real estate web app with robust authentication (JWT, Fireba
 
 ## Technologies Utilized
 
--**MongoDB**-
--**ReactJS**-
--**Redux toolkit**-
--**Node.js**-
--**Express**-
--**JWT**-
--**Firebase**-
--**Google OAuth**-
--**Firebase**-
--**Tailwind CSS**-
+- **MongoDB**
+- **ReactJS**
+- **Redux toolkit**
+- **Node.js**
+- **Express**
+- **JWT**
+- **Firebase**
+- **Google OAuth**
+- **Firebase**
+- **Tailwind CSS**
 
 ## Deployment
 
